@@ -758,6 +758,104 @@ a JSON array which contains one hash with the following keys:
 
 =back
 
+=head2 Holds
+
+=head3 GET holds/all
+
+=over 2
+
+Get all holds
+
+Required parameters:
+
+=over 2
+
+=item * user_name: patron username.
+
+=item * new_password: wanted password.
+
+=back
+
+Response:
+
+=over 2
+
+a JSON array which contains all holds in hashes with key 'hold'
+
+=back
+
+=back
+
+=head3 GET holds/pending
+
+=over 2
+
+Get all pending holds
+
+=back
+
+Response:
+
+=over 2
+
+a JSON array which contains hashes of pending hold requests with key 'request'
+
+=back
+
+=back
+
+=head3 GET holds/:branchcode/for_branch
+
+=over 2
+
+Get all holds for specified branch
+
+Required parameters:
+
+=over 2
+
+=item * branchcode: short code of branch.
+
+=back
+
+Response:
+
+=over 2
+
+a JSON array which contains hashes of holds for branch
+
+=back
+
+=back
+
+=head3 PUT holds/:biblionumber/:itemnumber/:borrowernumber/found_book
+
+=over 2
+
+Activate transfer of specific hold request 
+
+Required parameters:
+
+=over 2
+
+=item * itemnumber: item id
+
+=item * borrowernumber: borrower id
+
+=back
+
+Response:
+
+=over 2
+
+a JSON array of modified reserves
+
+=back
+
+=back
+
+=back
+
 =head2 Suggestions
 
 =head3 GET /suggestions
