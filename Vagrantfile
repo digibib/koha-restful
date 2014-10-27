@@ -1,0 +1,18 @@
+# Bug in docker/packer needs to append slash in salt paths:
+# https://github.com/mitchellh/packer/issues/1040
+Vagrant.configure("2") do |config|
+  config.ssh.forward_x11 = true
+  config.ssh.forward_agent = true
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.customize ["modifyvm", :id, "--memory", "1024"]
+  end
+
+  config.vm.box = "phusion/ubuntu-14.04-amd64"
+  config.vm.hostname = "koha-restful-docker"
+
+  config.vm.provision :docker do |d|
+    d.version = "latest"
+  end
+
+end
