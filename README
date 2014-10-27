@@ -1,54 +1,57 @@
-Koha REST server
+Vagrant box for Koha RESTful docker container
 ================
 
-Installation notes:
--------------------
+This repo contains a git fork of Biblibre's Koha-restful API.
 
-Clone the repository:
+Upstream: http://git.biblibre.com/biblibre/koha-restful.git
 
-    git clone git://git.biblibre.com/koha-restful.git $KOHA_REST
+Origin:   http://github.com/digibib/koha-restful.git
 
-Create symlinks into the Koha source directory ($KOHA_SRC):
+## Installation
 
-    ln -s $KOHA_REST/Koha/REST $KOHA_SRC/Koha/
-    ln -s $KOHA_REST/opac/rest.pl $KOHA_SRC/opac/
-    # This one is optional. It contains unit tests.
-    ln -s $KOHA_REST/t/rest $KOHA_SRC/t/
+Vagrant box can be started with:
 
-Important note: $KOHA_REST must be absolute path when creating symlinks.
+`vagrant up`
 
-Copy the config directory into the Koha configuration directory ($KOHA_ETC).
-It's the one that contains koha-conf.xml after installation (It's usually at
-$KOHA_ETC/koha-conf.xml)
+and enter with
 
-    cp -r $KOHA_REST/etc/rest $KOHA_ETC
+`vagrant ssh`
 
-Install the following package:
-    libcgi-application-dispatch-perl
+## Usage (Inside Vagrant Box)
 
-Documentation:
---------------
+Docker container can be built with:
 
-To know the different webservices exposed, have a look to :
-$ perldoc opac/rest.pl
+`sudo docker build -t [imagetag] /vagrant`
 
-Version information:
---------------------
+and run with:
 
-koha-restful has been tested with Koha 3.8, 3.10 and 3.14.
+`sudo docker run -it --name koha_restful [imagetag] /bin/sh`
 
-However Koha 3.8 needs additional patches for koha-restful to fully function:
-http://bugs.koha-community.org/bugzilla3/buglist.cgi?quicksearch=7065
-http://bugs.koha-community.org/bugzilla3/buglist.cgi?quicksearch=10185
+## Environment variables
 
-Unit tests:
------------
+`KOHA_INSTANCE=name of instance`
+`KOHA_SRC=path_to_koha_installation`
 
-To launch unit tests, execute the following command (from the root directory of
-koha-restful):
-  prove t/rest
-  prove t/rest/db_dependant
+## Local Volumes
 
-For db_dependant unit tests you will need to give all privileges to the mysql
-user used by Koha on database koha_restful_test.
-This database will be removed and then recreated each time you launch the tests.
+Exposed volumes are:
+
+$KOHA_SRC/Koha/REST
+$KOHA_SRC/REST/t/rest
+
+If you want to link to local code (volume) on your host:
+
+`sudo docker run -it --name koha_restful -v /somelocalpath:containerpath [imagetag] /bin/sh`
+
+However, koha restful needs a Koha installation to make sense.
+
+Downloading koha image
+
+`sudo docker pull digibib/koha`
+
+Now, a koha container can be set up to link against the Koha RESTful container 
+
+`sudo docker run -d --name koha_container --volumes-from=koha_restful digibib/koha`
+
+You should now enjoy access to Koha RESTful inside koha container
+

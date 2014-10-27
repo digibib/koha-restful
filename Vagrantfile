@@ -8,7 +8,7 @@ Vagrant.configure("2") do |config|
     vb.customize ["modifyvm", :id, "--memory", "1024"]
   end
 
-  config.vm.box = "phusion/ubuntu-14.04-amd64"
+  config.vm.box = "ubuntu/trusty64"
   config.vm.hostname = "koha-restful-docker"
 
   config.vm.provision :docker do |d|
