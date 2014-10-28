@@ -12,12 +12,12 @@ ENV KOHA_SRC /usr/share/koha
 
 # Add files
 ADD ./etc/rest/config.yaml /etc/koha/sites/$KOHA_INSTANCE/rest/config.yaml
-ADD ./opac/rest.pl $KOHA_SRC/opac/rest.pl
+ADD ./opac/rest.pl $KOHA_SRC/opac/cgi-bin/opac/rest.pl
 
 # Add folders to use as default in volumes
-ADD ./Koha/REST $KOHA_SRC/Koha/REST
+ADD ./Koha/REST $KOHA_SRC/lib/Koha/REST
 ADD ./t/rest $KOHA_SRC/t/rest
 
-VOLUME ["/etc/koha/sites/$KOHA_INSTANCE/rest", "$KOHA_SRC/Koha/REST", "$KOHA_SRC/t/rest"]
+VOLUME ["/etc/koha/sites/$KOHA_INSTANCE/rest", "$KOHA_SRC/lib/Koha/REST", "$KOHA_SRC/t/rest"]
 
 CMD /bin/sh
