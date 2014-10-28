@@ -55,3 +55,11 @@ Now, a koha container can be set up to link against the Koha RESTful container
 
 You should now enjoy access to Koha RESTful inside koha container
 
+## Testing
+
+Running tests inside koha_container:
+
+`sudo docker exec koha_container 'cd /usr/share/koha && \
+  KOHA_CONF=/etc/koha/sites/name/koha-conf.xml \
+  prove -Ilib t/rest'`
+
