@@ -82,7 +82,7 @@ DEFAULT_SLEEP_PERIOD = 5
 DEFAULT_RETRY_PERIOD = 300
 
 DEFAULT_OPAC_URL = "http://localhost:8080"
-DEFAULT_RESTFUL_URL = "http://localhost:8080/cgi-bin/koha/rest.pl/branches"
+DEFAULT_RESTFUL_URL = "http://localhost:8080/cgi-bin/koha/rest.pl/informations"
 
 validateArguments()
 

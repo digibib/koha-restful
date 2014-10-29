@@ -23,7 +23,9 @@ sub dispatch_args {
             'informations[get]'
                 => { app => 'Infos', rm => 'informations' },
             'branches[get]'
-                => { app => 'Infos', rm => 'branches' },
+                => { app => 'Branch', rm => 'get_branches' },
+            'branches[post]'
+                => { app => 'Branch', rm => 'create_branch' },
             'user/byid/:borrowernumber/holds[get]'
                 => { app => 'User', rm => 'get_holds_byid' },
             'user/:user_name/holds[get]'

@@ -48,6 +48,14 @@ run_koha:
 	-p 80:80 -p 8080:8080 -p 8081:8081 -t digibib/koha' || echo "koha_docker container \
 	already running, please _make delete_ first"
 
+run_restful_dev:
+	@vagrant ssh -c 'sudo docker run -d --name koha_docker -p 80:80 -p 8080:8080 -p 8081:8081 \
+	-v /vagrant/opac/rest.pl:/usr/share/koha/opac/cgi-bin/opac/rest.pl \
+	-v /vagrant/etc/rest/config.yaml:/etc/koha/sites/name/rest/config.yaml \
+	-v /vagrant/Koha/REST:/usr/share/koha/lib/Koha/REST \
+	-v /vagrant/t/rest:/usr/share/koha/t/rest \
+	-t digibib/koha' || echo "koha_docker container already running, please _make delete_ first"
+
 logs:
 	vagrant ssh -c 'sudo docker logs koha_docker'
 
