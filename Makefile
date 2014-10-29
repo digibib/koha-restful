@@ -13,6 +13,9 @@ up:
 provision:
 	vagrant provision
 
+upgrade:
+	vagrant ssh -c 'sudo docker pull digibib/koha'
+
 stop_restful: 
 	@echo "======= STOPPING KOHA-RESTFUL CONTAINER ======\n"
 	vagrant ssh -c 'sudo docker stop koha_restful' || true
@@ -51,7 +54,13 @@ logs:
 logs-f:
 	vagrant ssh -c 'sudo docker logs -f koha_docker'
 
-test:
+test: test_sanity test_unit
+
+test_sanity:
+	@echo "======= TESTING KOHA-RESTFUL SANITY ======\n"
+	vagrant ssh -c 'cd vm-test && python test.py koha_docker'
+
+test_unit:
 	@echo "======= TESTING KOHA-RESTFUL CONTAINER ======\n"
 	vagrant ssh -c 'sudo docker exec koha_docker /bin/bash -c "cd /usr/share/koha && \
 	KOHA_CONF=/etc/koha/sites/name/koha-conf.xml \
