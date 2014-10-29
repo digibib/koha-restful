@@ -55,8 +55,8 @@ test:
 	@echo "======= TESTING KOHA-RESTFUL CONTAINER ======\n"
 	vagrant ssh -c 'sudo docker exec koha_docker /bin/bash -c "cd /usr/share/koha && \
 	KOHA_CONF=/etc/koha/sites/name/koha-conf.xml \
-	prove -Ilib t/rest"'
-	
+	prove -Ilib t/rest"' | tee test.log | grep PASS
+
 clean:
 	vagrant destroy --force
 
