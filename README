@@ -9,23 +9,11 @@ Origin:   http://github.com/digibib/koha-restful.git
 
 ## Installation
 
-Vagrant box can be started with:
+`make` : will setup box, pull images and setup koha and koha restful
 
-`vagrant up`
+for development (editing code inline), you will need 
 
-and enter with
-
-`vagrant ssh`
-
-## Usage (Inside Vagrant Box)
-
-Docker container can be built with:
-
-`sudo docker build -t [imagetag] /vagrant`
-
-and run with:
-
-`sudo docker run -it --name koha_restful [imagetag] /bin/sh`
+`make run_restful_dev`
 
 ## Environment variables
 
@@ -36,30 +24,29 @@ and run with:
 
 Exposed volumes are:
 
-$KOHA_SRC/Koha/REST
-$KOHA_SRC/REST/t/rest
+```
+/etc/koha/sites/$KOHA_INSTANCE/rest
+$KOHA_SRC/lib/Koha/REST
+$KOHA_SRC/t/rest
+```
 
-If you want to link to local code (volume) on your host:
+`make upgrade` upgrade koha image
 
-`sudo docker run -it --name koha_restful -v /somelocalpath:containerpath [imagetag] /bin/sh`
+`make run` setup koha restful container and koha container with link
 
-However, koha restful needs a Koha installation to make sense.
-
-Downloading koha image
-
-`sudo docker pull digibib/koha`
-
-Now, a koha container can be set up to link against the Koha RESTful container 
-
-`sudo docker run -d --name koha_container --volumes-from=koha_restful digibib/koha`
+`make logs-f` watch koha installation logs
 
 You should now enjoy access to Koha RESTful inside koha container
 
-## Testing
+## Development and Testing
+
+`make run_restful_dev` : setup koha restful from local source tree and start koha kontainer
+
+`make test` : validate koha restful sanity and run tests
 
 Running tests inside koha_container:
 
-`sudo docker exec koha_container 'cd /usr/share/koha && \
+`sudo docker exec koha_docker 'cd /usr/share/koha && \
   KOHA_CONF=/etc/koha/sites/name/koha-conf.xml \
   prove -Ilib t/rest'`
 
