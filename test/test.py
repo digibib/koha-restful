@@ -105,16 +105,16 @@ else:
 	print "ERROR: docker-container", containerName, "is NOT running"
 	sys.exit(1)
 
-if (kohaStatusCode(opac_url, sleepPeriod, retryPeriod) == 200):
-	print "INFO: OPAC is running"
-else:
-	print "ERROR: OPAC is NOT running"
-	exitCode = 1
-
 if (kohaStatusCode(restful_url, sleepPeriod, retryPeriod) == 200):
 	print "INFO: REST API is running"
 else:
 	print "ERROR: REST API is NOT running"
+	exitCode = 1
+
+if (kohaStatusCode(opac_url, sleepPeriod, retryPeriod) == 200):
+	print "INFO: OPAC is running"
+else:
+	print "ERROR: OPAC is NOT running"
 	exitCode = 1
 
 sys.exit(exitCode)

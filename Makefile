@@ -62,17 +62,23 @@ logs:
 logs-f:
 	vagrant ssh -c 'sudo docker logs -f koha_docker'
 
-test: test_sanity test_unit
+test: test_sanity test_unit test_db_dependent
 
 test_sanity:
 	@echo "======= TESTING KOHA-RESTFUL SANITY ======\n"
 	vagrant ssh -c 'cd vm-test && python test.py koha_docker'
 
 test_unit:
-	@echo "======= TESTING KOHA-RESTFUL CONTAINER ======\n"
+	@echo "======= RUNNING KOHA-RESTFUL TESTS ======\n"
 	vagrant ssh -c 'sudo docker exec koha_docker /bin/bash -c "cd /usr/share/koha && \
 	KOHA_CONF=/etc/koha/sites/name/koha-conf.xml \
 	prove -Ilib t/rest"' | tee /dev/stderr | grep PASS
+
+test_db_dependent:
+	@echo "======= RUNNING KOHA-RESTFUL DATABASE DEPENDENT TESTS ======\n"
+	vagrant ssh -c 'sudo docker exec koha_docker /bin/bash -c "cd /usr/share/koha && \
+	KOHA_CONF=/etc/koha/sites/name/koha-conf.xml \
+	prove -Ilib t/rest/db_dependent"' | tee /dev/stderr | grep PASS
 
 clean:
 	vagrant destroy --force
