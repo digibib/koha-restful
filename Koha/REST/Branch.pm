@@ -12,11 +12,14 @@ use Data::Dumper;
 sub setup {
     my $self = shift;
     $self->run_modes(
+        get_branch_by_code => 'rm_get_branch_by_code',
         get_branches => 'rm_get_branches',
         create_branch => 'rm_create_branch',
     );
 }
 
+# GET /branch
+# Returns a list of branches
 sub rm_get_branches {
     my $self = shift;
     my $response = [];
@@ -27,6 +30,22 @@ sub rm_get_branches {
                 code => $branch->{branchcode},
                 name => $branch->{branchname},
             };
+        }
+    }
+    return format_response($self, $response);
+}
+
+# GET /branch/:branchcode
+# Returns the branch with given branchcode
+sub rm_get_branch_by_code {
+    my $self = shift;
+    my $branchcode = $self->param('branchcode');
+    my $response = [];
+    my $branch = C4::Branch::GetBranchDetail($branchcode);
+    if ($branch) {
+        push @$response, {
+            code => $branch->{branchcode},
+            name => $branch->{branchname},
         }
     }
     return format_response($self, $response);
