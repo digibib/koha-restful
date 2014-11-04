@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 use Modern::Perl;
-use Test::More tests => 15;
+use Test::More tests => 17;
 use Test::MockModule;
 use Test::WWW::Mechanize::CGIApp;
 use HTTP::Status qw(:constants :is status_message);
@@ -17,7 +17,6 @@ use Data::Dumper;
 
 my $c4_branch_module = new Test::MockModule('C4::Branch');
 $c4_branch_module->mock('GetBranches', \&mock_c4_branch_GetBranches);
-$c4_branch_module->mock('GetBranchDetail', \&mock_c4_branch_GetBranchDetail); 
 $c4_branch_module->mock('ModBranch', \&mock_c4_branch_ModBranch);
 
 my (%branches, %newBranch);
@@ -42,6 +41,7 @@ foreach my $key (qw(code name))
 
 ## GET /branch/:branchCode
 $path = "/branch/:branchCode";
+$c4_branch_module->mock('GetBranchDetail', \&mock_c4_branch_GetBranchDetail);
 $mech->get_ok('/branch/B1');
 is($mech->status, HTTP_OK, "$path should return correct status code");
 $output = from_json($mech->response->content);
@@ -52,9 +52,13 @@ is($output->[0]->{name},"Branch 1", "$path response contains the correct name");
 
 ## POST /branch
 $path = "/branch";
+$c4_branch_module->mock('GetBranchDetail', \&mock_c4_branch_GetBranchDetail_newBranch); 
 my $newBranch = to_json(\%newBranch);
-$mech->post( $path, [ POSTDATA => $newBranch, 'content-type' => 'application/json' ], "create branch");
-is($mech->status, HTTP_OK, "$path should return correct status code");
+$mech->post_ok( $path, [ POSTDATA => $newBranch, 'content-type' => 'application/json' ], "create branch");
+is($mech->status, HTTP_CREATED, "$path should return correct status code");
+$output = from_json($mech->response->content);
+is_deeply($output, \%newBranch, "$path returns created resource");
+
 # TODO: test also for location header of created resource
 
 # Mocked subroutines
@@ -103,4 +107,8 @@ sub mock_c4_branch_GetBranchDetail {
     my ($branchcode) = @_;
 
     return $branches{$branchcode};
+}
+
+sub mock_c4_branch_GetBranchDetail_newBranch {
+    return ( \%newBranch );
 }
