@@ -18,7 +18,7 @@ my $c4_branch_module = new Test::MockModule('C4::Branch');
 $c4_branch_module->mock('GetBranches', \&mock_c4_branch_GetBranches);
 $c4_branch_module->mock('GetBranchDetail', \&mock_c4_branch_GetBranchDetail); 
 
-my (@branches, %branch_by_branchcode);
+my (%branches);
 
 # Tests
 
@@ -52,28 +52,19 @@ is($output->[0]->{name},"Branch 1", "$path response contains the correct name");
 # Mocked subroutines
 
 BEGIN {
-   @branches = (
-        {branchcode => 'B1', branchname => 'Branch 1'},
-        {branchcode => 'B2', branchname => 'Branch 2'},
-        {branchcode => 'B3', branchname => 'Branch 3'},
+   %branches = (
+        B1 => {branchcode => 'B1', branchname => 'Branch 1'},
+        B2 => {branchcode => 'B2', branchname => 'Branch 2'},
+        B3 => {branchcode => 'B3', branchname => 'Branch 3'},
    );
 }
 
 sub mock_c4_branch_GetBranches {
-   return @branches;
-}
-
-
-BEGIN {
-    %branch_by_branchcode = (
-        B1 => {branchcode => 'B1', branchname => 'Branch 1'},
-        B2 => {branchcode => 'B2', branchname => 'Branch 2'},
-        B3 => {branchcode => 'B3', branchname => 'Branch 3'},
-    );
+   return ( \%branches );
 }
 
 sub mock_c4_branch_GetBranchDetail {
     my ($branchcode) = @_;
 
-    return $branch_by_branchcode{$branchcode};
+    return $branches{$branchcode};
 }

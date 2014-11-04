@@ -23,9 +23,9 @@ sub setup {
 sub rm_get_branches {
     my $self = shift;
     my $response = [];
-    my @branches = C4::Branch::GetBranches();
-    if (@branches) {
-        foreach my $branch (@branches) {
+    my $branches = C4::Branch::GetBranches();
+    if ($branches) {
+        foreach my $branch (values %$branches) {
             push @$response, {
                 code => $branch->{branchcode},
                 name => $branch->{branchname},
