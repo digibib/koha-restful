@@ -217,14 +217,16 @@ sub biblio_is_holdable {
 
     my ($currentreserves,$maxreservesallowed) = (0, -1);
     for my $item (@items){
-        my @list = CanItemBeReserved($borrowernumber,$item->{itemnumber});
+        my @list = C4::Reserves::CanItemBeReserved($borrowernumber,$item->{itemnumber});
         if ($list[0] == 1){
             return 1;
-        } else {
-            $currentreserves = $list[1]
-                if ($list[1] > $currentreserves);
-            $maxreservesallowed = $list[2]
-                if ($list[2] < $maxreservesallowed or $maxreservesallowed == -1);
+        } elsif (scalar @list > 1) {
+            if ($list[1] > $currentreserves) {
+                $currentreserves = $list[1];
+            }
+            if ($list[2] < $maxreservesallowed or $maxreservesallowed == -1) {
+                $maxreservesallowed = $list[2];
+            }
         }
     }
 
@@ -245,10 +247,9 @@ sub item_is_holdable {
         my $biblionumber = $item->{biblionumber};
 
         my $can_reserve = C4::Reserves::CanItemBeReserved($borrowernumber, $itemnumber);
-
         # This shouldn't be here. It should be in the
         # C4::Reserves::CanItemBeReserved function. But that's how koha works.
-        my $available = IsAvailableForItemLevelRequest($itemnumber);
+        my $available = C4::Reserves::IsAvailableForItemLevelRequest($itemnumber);
 
         my @reserves = C4::Reserves::GetReservesFromBorrowernumber($borrowernumber);
         my $already_reserved = 0;
