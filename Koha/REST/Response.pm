@@ -11,9 +11,9 @@ our @EXPORT_OK = qw(
 );
 
 sub format_response {
-    my ($cgi_application, $response) = @_;
+    my ($cgi_application, $response, $status) = @_;
 
-    $cgi_application->header_props(-content_type => 'application/json');
+    $cgi_application->header_props(-content_type => 'application/json', -status => $status);
     return to_json($response, { utf8 => 1, pretty => 1 });
 }
 
