@@ -64,7 +64,12 @@ sub rm_create_branch {
 
     my $error = C4::Branch::ModBranch($data);
     if ($error) {
-        return format_response($self, { error => "Not created" });
+        return format_error($self, '400 Not Created', {
+            error => "Not created",
+        });
+    } else {
+        my $branch = C4::Branch::GetBranchDetail($data->{branchcode});
+        return format_response($self, $branch);
     }
 }
 
