@@ -1,9 +1,10 @@
 #!/usr/bin/perl
 
 use Modern::Perl;
-use Test::More tests => 12;
+use Test::More tests => 14;
 use Test::MockModule;
 use Test::WWW::Mechanize::CGIApp;
+use HTTP::Status qw(:constants :is status_message);
 
 use Koha::REST::Branch;
 use DateTime::Format::DateParse;
@@ -31,6 +32,7 @@ $mech->app('Koha::REST::Dispatch');
 ## GET /branch
 my $path = "/branch";
 $mech->get_ok('/branch');
+is($mech->status, HTTP_OK, "$path should return correct status code");
 my $output = from_json($mech->response->content);
 is(ref $output, 'ARRAY', "$path response is an array");
 is(scalar @$output, 3, "$path response contains the good number of branches");
@@ -43,6 +45,7 @@ foreach my $key (qw(code name))
 ## GET /branch/:branchCode
 $path = "/branch/:branchCode";
 $mech->get_ok('/branch/B1');
+is($mech->status, HTTP_OK, "$path should return correct status code");
 $output = from_json($mech->response->content);
 is(ref $output, 'ARRAY', "$path response is a array");
 is(scalar @$output, 1, "$path response contains the good number of branches");
