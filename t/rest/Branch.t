@@ -19,7 +19,7 @@ my $c4_branch_module = new Test::MockModule('C4::Branch');
 $c4_branch_module->mock('GetBranches', \&mock_c4_branch_GetBranches);
 $c4_branch_module->mock('ModBranch', \&mock_c4_branch_ModBranch);
 
-my (%branches, %newBranch);
+my (%branches, %newBranch, %modifiedBranch);
 
 # Tests
 
@@ -58,8 +58,17 @@ $mech->post_ok( $path, [ POSTDATA => $newBranch, 'content-type' => 'application/
 is($mech->status, HTTP_CREATED, "$path should return correct status code");
 $output = from_json($mech->response->content);
 is_deeply($output, \%newBranch, "$path returns created resource");
-
 # TODO: test also for location header of created resource
+
+## PUT /branch
+$path = "/branch";
+$c4_branch_module->mock('GetBranchDetail', \&mock_c4_branch_GetBranchDetail_modifiedBranch); 
+my $modifiedBranch = to_json(\%modifiedBranch);
+$mech->put_ok( $path, [ POSTDATA => $modifiedBranch, 'content-type' => 'application/json' ], "modify branch");
+is($mech->status, HTTP_OK, "$path should return correct status code");
+$output = from_json($mech->response->content);
+is($output->{code},"B1", "$path response contains the correct code");
+is($output->{name},"Modified Branch 1", "$path response contains the correct modified name");
 
 # Mocked subroutines
 
@@ -95,6 +104,13 @@ BEGIN {
     );
 }
 
+BEGIN {
+    %modifiedBranch = (
+        branchcode => 'B1',
+        branchname => 'Modified Branch 1',
+    );
+}
+
 sub mock_c4_branch_ModBranch {
     return 0;
 }
@@ -111,4 +127,8 @@ sub mock_c4_branch_GetBranchDetail {
 
 sub mock_c4_branch_GetBranchDetail_newBranch {
     return ( \%newBranch );
+}
+
+sub mock_c4_branch_GetBranchDetail_modifiedBranch {
+    return ( \%modifiedBranch );
 }
