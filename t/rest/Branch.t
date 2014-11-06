@@ -70,6 +70,14 @@ $output = from_json($mech->response->content);
 is($output->{branchcode},"B1", "$path response contains the correct code");
 is($output->{branchname},"Modified Branch 1", "$path response contains the correct modified name");
 
+## DELETE /branch/:branchCode
+$path = "/branch/:branchCode";
+$c4_branch_module->mock('DelBranch', \&mock_c4_branch_DelBranch_success);
+$mech->delete( '/branch/B1', "delete branch");
+is($mech->status, HTTP_OK, "$path should return correct status code");
+$output = from_json($mech->response->content);
+is($output->{deleted}, JSON::true, "$path response contains the correct response");
+
 # Mocked subroutines
 
 BEGIN {
@@ -131,4 +139,8 @@ sub mock_c4_branch_GetBranchDetail_newBranch {
 
 sub mock_c4_branch_GetBranchDetail_modifiedBranch {
     return ( \%modifiedBranch );
+}
+
+sub mock_c4_branch_DelBranch_success {
+    return ( {deleted => 1 } );
 }
