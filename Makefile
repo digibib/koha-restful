@@ -69,7 +69,7 @@ test_sanity:
 	vagrant ssh -c 'cd vm-test && python test.py koha_docker'
 
 test_unit:
-	@echo "======= RUNNING KOHA-RESTFUL TESTS ======\n"
+	@echo "======= TESTING KOHA-RESTFUL UNIT ======\n"
 	vagrant ssh -c 'sudo docker exec koha_docker /bin/bash -c "cd /usr/share/koha && \
 	KOHA_CONF=/etc/koha/sites/name/koha-conf.xml \
 	prove -Ilib t/rest"' | tee /dev/stderr | grep PASS

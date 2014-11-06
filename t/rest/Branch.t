@@ -24,6 +24,7 @@ my (%branches, %newBranch, %modifiedBranch);
 # Tests
 
 my $mech = Test::WWW::Mechanize::CGIApp->new;
+$mech->requests_redirectable([]);
 $mech->app('Koha::REST::Dispatch');
 
 ## GET /branch
@@ -40,6 +41,7 @@ foreach my $key (qw(code name))
 }
 
 ## GET /branch/:branchCode
+### Scenario: good case, branch exists
 $path = "/branch/:branchCode";
 $c4_branch_module->mock('GetBranchDetail', \&mock_c4_branch_GetBranchDetail);
 $mech->get_ok('/branch/B1');
@@ -50,14 +52,17 @@ is(scalar @$output, 1, "$path response contains the good number of branches");
 is($output->[0]->{code},"B1", "$path response contains the correct code");
 is($output->[0]->{name},"Branch 1", "$path response contains the correct name");
 
+### Scenario: bad case, branch does not exists
+$mech->get('/branch/BRANCH_CODE_THAT_DOES_NOT_EXIST');
+is($mech->status, HTTP_NOT_FOUND, "$path should return correct status code");
+
 ## POST /branch
 $path = "/branch";
 $c4_branch_module->mock('GetBranchDetail', \&mock_c4_branch_GetBranchDetail_newBranch); 
 my $newBranch = to_json(\%newBranch);
-$mech->post_ok( $path, [ POSTDATA => $newBranch, 'content-type' => 'application/json' ], "create branch");
-
-is($mech->status, HTTP_OK, "$path should return correct status code");
-my $location = $mech->response->previous->headers->{location};
+$mech->post( $path, [ POSTDATA => $newBranch, 'content-type' => 'application/json' ], "create branch");
+is($mech->status, HTTP_CREATED, "$path should return correct status code");
+my $location = $mech->response->headers->{location};
 is($location, "http://localhost/branch/" . $newBranch{branchcode}, "$path returns location to created resource");
 
 ## PUT /branch

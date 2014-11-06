@@ -49,9 +49,13 @@ sub rm_get_branch_by_code {
         push @$response, {
             code => $branch->{branchcode},
             name => $branch->{branchname},
-        }
+        };
+        return format_response($self, $response);
+    } else {
+        return format_error($self, HTTP_NOT_FOUND, {
+            error => "Not found",
+        });
     }
-    return format_response($self, $response);
 }
 
 # POST /branch
