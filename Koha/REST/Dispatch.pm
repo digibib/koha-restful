@@ -22,10 +22,14 @@ sub dispatch_args {
         table => [
             'informations[get]'
                 => { app => 'Infos', rm => 'informations' },
-            'branches[get]'
+            'branch[get]'
                 => { app => 'Branch', rm => 'get_branches' },
-            'branches[post]'
+            'branch/:branchcode[get]'
+                => { app => 'Branch', rm => 'get_branch_by_code' },
+            'branch[post]'
                 => { app => 'Branch', rm => 'create_branch' },
+            'branch/:branchcode[put]'
+                => { app => 'Branch', rm => 'edit_branch' },
             'user/byid/:borrowernumber/holds[get]'
                 => { app => 'User', rm => 'get_holds_byid' },
             'user/:user_name/holds[get]'
