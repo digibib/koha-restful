@@ -16,6 +16,7 @@ sub setup {
         get_branch_by_code => 'rm_get_branch_by_code',
         get_branches => 'rm_get_branches',
         create_branch => 'rm_create_branch',
+        edit_branch => 'rm_edit_branch',
     );
 }
 
@@ -71,6 +72,26 @@ sub rm_create_branch {
     } else {
         my $branch = C4::Branch::GetBranchDetail($data->{branchcode});
         return format_response($self, $branch, HTTP_CREATED);
+    }
+}
+
+# PUT /branch/:branchCode
+sub rm_edit_branch {
+    my $self = shift;
+    my $branchcode = $self->param('branchcode');
+    my $q = $self->query;
+    my $jsondata = $q->param('PUTDATA');
+
+    my $data = from_json($jsondata);
+
+    my $error = C4::Branch::ModBranch($data);
+    if ($error) {
+        return format_error($self, HTTP_BAD_REQUEST, {
+            error => "Not modified",
+        });
+    } else {
+        my $branch = C4::Branch::GetBranchDetail($data->{branchcode});
+        return format_response($self, $branch, HTTP_OK);
     }
 }
 

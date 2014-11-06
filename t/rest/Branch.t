@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 use Modern::Perl;
-use Test::More tests => 17;
+use Test::More tests => 21;
 use Test::MockModule;
 use Test::WWW::Mechanize::CGIApp;
 use HTTP::Status qw(:constants :is status_message);
@@ -61,14 +61,14 @@ is_deeply($output, \%newBranch, "$path returns created resource");
 # TODO: test also for location header of created resource
 
 ## PUT /branch
-$path = "/branch";
+$path = "/branch/:branchCode";
 $c4_branch_module->mock('GetBranchDetail', \&mock_c4_branch_GetBranchDetail_modifiedBranch); 
 my $modifiedBranch = to_json(\%modifiedBranch);
-$mech->put_ok( $path, [ POSTDATA => $modifiedBranch, 'content-type' => 'application/json' ], "modify branch");
+$mech->put_ok( '/branch/B1', { content => $modifiedBranch, 'content-type' => 'application/json' }, "modify branch");
 is($mech->status, HTTP_OK, "$path should return correct status code");
 $output = from_json($mech->response->content);
-is($output->{code},"B1", "$path response contains the correct code");
-is($output->{name},"Modified Branch 1", "$path response contains the correct modified name");
+is($output->{branchcode},"B1", "$path response contains the correct code");
+is($output->{branchname},"Modified Branch 1", "$path response contains the correct modified name");
 
 # Mocked subroutines
 
