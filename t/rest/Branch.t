@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 use Modern::Perl;
-use Test::More tests => 21;
+use Test::More tests => 26;
 use Test::MockModule;
 use Test::WWW::Mechanize::CGIApp;
 use HTTP::Status qw(:constants :is status_message);
@@ -55,10 +55,10 @@ $path = "/branch";
 $c4_branch_module->mock('GetBranchDetail', \&mock_c4_branch_GetBranchDetail_newBranch); 
 my $newBranch = to_json(\%newBranch);
 $mech->post_ok( $path, [ POSTDATA => $newBranch, 'content-type' => 'application/json' ], "create branch");
-is($mech->status, HTTP_CREATED, "$path should return correct status code");
-$output = from_json($mech->response->content);
-is_deeply($output, \%newBranch, "$path returns created resource");
-# TODO: test also for location header of created resource
+
+is($mech->status, HTTP_OK, "$path should return correct status code");
+my $location = $mech->response->previous->headers->{location};
+is($location, "http://localhost/branch/" . $newBranch{branchcode}, "$path returns location to created resource");
 
 ## PUT /branch
 $path = "/branch/:branchCode";
@@ -69,6 +69,21 @@ is($mech->status, HTTP_OK, "$path should return correct status code");
 $output = from_json($mech->response->content);
 is($output->{branchcode},"B1", "$path response contains the correct code");
 is($output->{branchname},"Modified Branch 1", "$path response contains the correct modified name");
+
+## DELETE /branch/:branchCode
+$path = "/branch/:branchCode";
+$c4_branch_module->mock('DelBranch', \&mock_c4_branch_DelBranch_success);
+$mech->delete( '/branch/B1', "delete branch");
+is($mech->status, HTTP_NO_CONTENT, "$path should return correct status code");
+$output = from_json($mech->response->content);
+is($output->{deleted}, JSON::true, "$path response contains the correct response");
+
+$c4_branch_module->mock('DelBranch', \&mock_c4_branch_DelBranch_nonexisting);
+$mech->delete( '/branch/B1', "delete non-existing branch");
+is($mech->status, HTTP_NOT_FOUND, "$path should return correct status code");
+$output = from_json($mech->response->content);
+is($output->{deleted}, JSON::false, "$path response contains the correct response");
+is($output->{error}, "0E0", "$path response contains the correct response");
 
 # Mocked subroutines
 
@@ -131,4 +146,12 @@ sub mock_c4_branch_GetBranchDetail_newBranch {
 
 sub mock_c4_branch_GetBranchDetail_modifiedBranch {
     return ( \%modifiedBranch );
+}
+
+sub mock_c4_branch_DelBranch_success {
+    return 1;
+}
+
+sub mock_c4_branch_DelBranch_nonexisting {
+    return "0E0";
 }

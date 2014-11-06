@@ -17,6 +17,7 @@ sub setup {
         get_branches => 'rm_get_branches',
         create_branch => 'rm_create_branch',
         edit_branch => 'rm_edit_branch',
+        delete_branch => 'rm_delete_branch',
     );
 }
 
@@ -70,8 +71,10 @@ sub rm_create_branch {
             error => "Not created",
         });
     } else {
-        my $branch = C4::Branch::GetBranchDetail($data->{branchcode});
-        return format_response($self, $branch, HTTP_CREATED);
+        my $response = format_response($self, {}, HTTP_CREATED);
+        my $location = $self->query->url(-path_info => 1) . '/' . $data->{branchcode};
+        $self->header_add( -location => $location);
+        return $response;
     }
 }
 
@@ -83,15 +86,28 @@ sub rm_edit_branch {
     my $jsondata = $q->param('PUTDATA');
 
     my $data = from_json($jsondata);
+    $data->{branchcode} = $branchcode;
 
     my $error = C4::Branch::ModBranch($data);
     if ($error) {
-        return format_error($self, HTTP_BAD_REQUEST, {
-            error => "Not modified",
-        });
+        return format_error($self, HTTP_BAD_REQUEST, { error => "Not modified" });
     } else {
-        my $branch = C4::Branch::GetBranchDetail($data->{branchcode});
+        my $branch = C4::Branch::GetBranchDetail($branchcode);
         return format_response($self, $branch, HTTP_OK);
+    }
+}
+
+# DELETE /branch/:branchCode
+sub rm_delete_branch {
+    my $self = shift;
+    my $branchcode = $self->param('branchcode');
+
+    my $error = C4::Branch::DelBranch($branchcode);
+
+    if ($error == 1) {
+        return format_response($self, { deleted => JSON::true }, HTTP_NO_CONTENT);
+    } else {
+        return format_error($self, HTTP_NOT_FOUND, { deleted => JSON::false, error => $error });
     }
 }
 
