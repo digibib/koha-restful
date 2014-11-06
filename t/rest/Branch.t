@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 use Modern::Perl;
-use Test::More tests => 21;
+use Test::More tests => 26;
 use Test::MockModule;
 use Test::WWW::Mechanize::CGIApp;
 use HTTP::Status qw(:constants :is status_message);
@@ -74,9 +74,16 @@ is($output->{branchname},"Modified Branch 1", "$path response contains the corre
 $path = "/branch/:branchCode";
 $c4_branch_module->mock('DelBranch', \&mock_c4_branch_DelBranch_success);
 $mech->delete( '/branch/B1', "delete branch");
-is($mech->status, HTTP_OK, "$path should return correct status code");
+is($mech->status, HTTP_NO_CONTENT, "$path should return correct status code");
 $output = from_json($mech->response->content);
 is($output->{deleted}, JSON::true, "$path response contains the correct response");
+
+$c4_branch_module->mock('DelBranch', \&mock_c4_branch_DelBranch_nonexisting);
+$mech->delete( '/branch/B1', "delete non-existing branch");
+is($mech->status, HTTP_NOT_FOUND, "$path should return correct status code");
+$output = from_json($mech->response->content);
+is($output->{deleted}, JSON::false, "$path response contains the correct response");
+is($output->{error}, "0E0", "$path response contains the correct response");
 
 # Mocked subroutines
 
@@ -142,5 +149,9 @@ sub mock_c4_branch_GetBranchDetail_modifiedBranch {
 }
 
 sub mock_c4_branch_DelBranch_success {
-    return ( {deleted => 1 } );
+    return 1;
+}
+
+sub mock_c4_branch_DelBranch_nonexisting {
+    return "0E0";
 }
