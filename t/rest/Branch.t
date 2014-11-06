@@ -55,10 +55,10 @@ $path = "/branch";
 $c4_branch_module->mock('GetBranchDetail', \&mock_c4_branch_GetBranchDetail_newBranch); 
 my $newBranch = to_json(\%newBranch);
 $mech->post_ok( $path, [ POSTDATA => $newBranch, 'content-type' => 'application/json' ], "create branch");
-is($mech->status, HTTP_CREATED, "$path should return correct status code");
-$output = from_json($mech->response->content);
-is_deeply($output, \%newBranch, "$path returns created resource");
-# TODO: test also for location header of created resource
+
+is($mech->status, HTTP_OK, "$path should return correct status code");
+my $location = $mech->response->previous->headers->{location};
+is($location, "http://localhost/branch/" . $newBranch{branchcode}, "$path returns location to created resource");
 
 ## PUT /branch
 $path = "/branch/:branchCode";
