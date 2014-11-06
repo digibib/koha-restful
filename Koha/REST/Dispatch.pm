@@ -22,6 +22,8 @@ sub dispatch_args {
         table => [
             'informations[get]'
                 => { app => 'Infos', rm => 'informations' },
+            'branches[get]'
+                => { app => 'Branch', rm => 'get_branches' },
             'branch[get]'
                 => { app => 'Branch', rm => 'get_branches' },
             'branch/:branchcode[get]'
