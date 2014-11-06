@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 use Modern::Perl;
-use Test::More tests => 27;
+use Test::More tests => 26;
 use Test::MockModule;
 use Test::WWW::Mechanize::CGIApp;
 use HTTP::Status qw(:constants :is status_message);
@@ -24,6 +24,7 @@ my (%branches, %newBranch, %modifiedBranch);
 # Tests
 
 my $mech = Test::WWW::Mechanize::CGIApp->new;
+$mech->requests_redirectable([]);
 $mech->app('Koha::REST::Dispatch');
 
 ## GET /branch
@@ -59,10 +60,9 @@ is($mech->status, HTTP_NOT_FOUND, "$path should return correct status code");
 $path = "/branch";
 $c4_branch_module->mock('GetBranchDetail', \&mock_c4_branch_GetBranchDetail_newBranch); 
 my $newBranch = to_json(\%newBranch);
-$mech->post_ok( $path, [ POSTDATA => $newBranch, 'content-type' => 'application/json' ], "create branch");
-
-is($mech->status, HTTP_OK, "$path should return correct status code");
-my $location = $mech->response->previous->headers->{location};
+$mech->post( $path, [ POSTDATA => $newBranch, 'content-type' => 'application/json' ], "create branch");
+is($mech->status, HTTP_CREATED, "$path should return correct status code");
+my $location = $mech->response->headers->{location};
 is($location, "http://localhost/branch/" . $newBranch{branchcode}, "$path returns location to created resource");
 
 ## PUT /branch
